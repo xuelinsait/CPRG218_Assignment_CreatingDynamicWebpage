@@ -9,6 +9,8 @@
  * 7.) There are 3 task in this that you have to complete. Discuss with your instructor to understand the task.
  */
 
+// const { createElement } = require("react");
+
 const myApiKey = ""; // <<-- ADD YOUR API KEY HERE. DELETE THIS KEY before uploading your code on Github or Brightspace, 
 
 const BASE_URL = "http://www.omdbapi.com";
@@ -22,7 +24,7 @@ document.addEventListener('DOMContentLoaded', addEventHandlers);    // calling a
 function searchHandler() {
     const inputTxt = document.getElementById("searchBar").value;
     console.log(`Text Entered: ${inputTxt}`);
-    if(inputTxt != "") {
+    if (inputTxt != "") {
         clearPreviousResult();
         getMovies(inputTxt);
     }
@@ -38,7 +40,7 @@ function addEventHandlers() {
 
     // handling enter key press on search bar
     document.getElementById("searchBar").addEventListener("keydown", (event) => {
-        if(event.key === 'Enter') {
+        if (event.key === 'Enter') {
             searchHandler();
         }
     });
@@ -50,7 +52,7 @@ function addEventHandlers() {
 function clearPreviousResult() {
     const nodes = document.getElementById("movieCards").childNodes;
     console.log(`clearPreviousResult: ${nodes.length}`);
-    for(var i = nodes.length; i>=0; i--) {
+    for (var i = nodes.length; i >= 0; i--) {
         console.log("deleting node")
         nodes[i]?.remove();
     }
@@ -89,14 +91,14 @@ async function getMovies(movieTitle) {
     try {
         const response = await fetch(API_URL);
 
-        if(response.ok) {
-            
+        if (response.ok) {
+
             // Success response is received. Extracting movieList from response.
             const data = await response.json();
 
             const movieList = data.Search;
 
-            if(movieList == null || movieList.length == 0) {
+            if (movieList == null || movieList.length == 0) {
                 createEmptyView();
                 return;
             }
@@ -109,9 +111,9 @@ async function getMovies(movieTitle) {
 
             const filteredMovies = [];
             results.forEach(result => {
-                if(result.status === "fulfilled" && result.value != null) {
+                if (result.status === "fulfilled" && result.value != null) {
                     const movieObj = result.value;
-                    movieObj.Title = movieObj.Title.length > 40 ? `${movieObj.Title.substring(0,40)}...` : movieObj.Title;
+                    movieObj.Title = movieObj.Title.length > 40 ? `${movieObj.Title.substring(0, 40)}...` : movieObj.Title;
                     filteredMovies.push(movieObj);
                 }
             })
@@ -126,8 +128,17 @@ async function getMovies(movieTitle) {
              * and call createMovieCard() for each movie object in this array.
              */
 
+            if (filteredMovies.lentth == 0) {
+                createEmptyView();
+                return 0;
+            } else {
+                for (var idx = 0; idx < filteredMovies.length; idx++) {
+                    createMovieCard(filteredMovies[idx]);
+                }
+            }
+
         }
-    } catch(exception) {
+    } catch (exception) {
         console.error("Exception occurred in getMovies function.")
         console.error(exception);
 
@@ -143,14 +154,14 @@ async function getMovies(movieTitle) {
 async function checkPosterURL(movie) {
     try {
         const response = await fetch(movie.Poster)
-        if(response.ok) {
+        if (response.ok) {
             // Poster url is working
             return movie;
         } else {
             // Poster url is not correct
             return null;
         }
-    } catch(error) {
+    } catch (error) {
         console.error("Error while checking poster url");
         console.error(error);
     }
@@ -169,7 +180,11 @@ function createEmptyView() {
      * TASK : 2
      * Create empty view and append it to "movieCards" section.
      */
+    const MovieElement_p = document.createElement('p')
+    MovieElement_p.classList.add('noresult')
+    MovieElement_p.innerHTML = "No movie found!!! Please search for another title."
 
+    document.getElementById("movieCards").appendChild(MovieElement_p);
 }
 
 /**
@@ -186,10 +201,30 @@ function createEmptyView() {
 function createMovieCard(movie) {
     console.log("createMovieCard");
     console.log(movie);
-    
+
     /**
      * TASK : 3
      * Create Movie Card and append it "movieCards" section.
      */
+    const MovieElement_img = document.createElement("img");
+    MovieElement_img.classList.add("moviePoster");
+    MovieElement_img.src = movie.Poster;
+    MovieElement_img.alt = "Movie poster";
+
+    const MovieElement_p = document.createElement("p");
+    MovieElement_p.classList.add("cardTitle");
+    MovieElement_p.innerHTML = movie.Title;
+
+    const MovieElement_div = document.createElement("div");
+    MovieElement_div.classList.add("cardPosterDiv");
+
+    const MovieElement_article = document.createElement("article");
+    MovieElement_article.classList.add("card");
+
+    MovieElement_div.appendChild(MovieElement_img);
+    MovieElement_article.appendChild(MovieElement_p);
+    MovieElement_article.appendChild(MovieElement_div);
+
+    document.getElementById("movieCards").appendChild(MovieElement_article);
 
 }
